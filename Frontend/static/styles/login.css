@@ -4,7 +4,7 @@ body {
     font-family: Arial, sans-serif;
     background: url('/static/img/background.png') no-repeat center center fixed;
     background-size: cover;
-    color: #ff4747;
+    color: #0c4f7e;
     overflow: hidden;
 }
 
@@ -50,7 +50,7 @@ input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 10px;
-    border: 2px solid #ff4747;
+    border: 2px solid #0c4f7e;
     border-radius: 5px;
     box-sizing: border-box;
 }
@@ -62,7 +62,7 @@ input[type="password"]:focus {
 }
 
 .login-btn {
-    background-color: #ff4747;
+    background-color: #0c4f7e;
     color: #f2f2f2;
     padding: 10px;
     border: none;
@@ -73,7 +73,7 @@ input[type="password"]:focus {
 }
 
 .login-btn:hover {
-    background-color: #d93b3b;
+    background-color: #0c4f7e;
 }
 
 .social-login {
@@ -87,13 +87,13 @@ input[type="password"]:focus {
 
 .register-text {
     font-size: 16px;
-    color: #ff4747;
+    color: #0c4f7e;
 }
 
 .register-btn {
     display: block;
     background-color: #f2f2f2;
-    color: #ff4747;
+    color: #0c4f7e;
     padding: 10px;
     text-align: center;
     border-radius: 5px;
@@ -102,7 +102,9 @@ input[type="password"]:focus {
 }
 
 .register-btn:hover {
-    background-color: #91e8b4;
+    background-color: #0c4f7e;
+    color: whitesmoke;
+    transition: 0.3s ease;
 }
 
 .password-container {
@@ -119,7 +121,7 @@ input[type="password"]:focus {
     border: none;
     background: none;
     cursor: pointer;
-    color: #ff4747;
+    color: #0c4f7e;
     font-size: 25px;
     padding: 0;
 }
@@ -136,10 +138,11 @@ input[type="password"]:focus {
     border: none;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .login-box {
         width: 90%;
         padding: 15px;
     }
 }
+
