@@ -1,5 +1,6 @@
 from dbloader import connect_to_db
-
+import os
+import psycopg2
 conn, cur = connect_to_db()
 
 
@@ -68,12 +69,30 @@ def modify_insurance_prodcut_fields(fields_edits):
             conn.rollback()
 
 
-def create_contract(insurance_product_id,fields):
+def create_contract(user_id:int,insurance_product_id:int,fields:dict,signature_id_on_server:int=123):
         '''
         Creates contract from any insurance product. Expects insurance product id and set of dicts that are tagged according to fields formation.
-        
+        The contract itself is just header info whith stash of jsons that are {field_id:info} essentially
         Args:
-            -fields_edits (dict): set of dicts of fields with changed values. It's enought cuz each element contains field id
+            -user_id(int):selfexplanatory
+            -fields(dict):info in dicts for each field.
+            -insurance_product_id(int): selfexplanatory
+            -signature_id_on_server(int): unique id for each signature saved on server. Use it to load a sig pic from folder into bd
         Returns:
             - nill
         '''
+        try:
+            with open(os.path.join(os.path.join('static','signatures'),signature_id_on_server)) as pic:
+                img_data = pic.read()
+
+        except Exception:
+            with open(os.path.join(os.path.join('static','signatures'),'default')) as pic:
+                img_data = pic.read()
+        reformed_data_dict = {}
+        for field in fields:
+            reformed_data_dict[field['id']] = field.pop('id')
+        cur.execute("INSERT INTO contracts (user_id ,insurance_product_id, insurance_product_data, signatures, created_at) VALUES(%s,%s,%s,%s,CURRENT_TIMESTAMP)",(user_id,insurance_product_id,reformed_data_dict,psycopg2.Binary(img_data)))
+        try:
+            os.remove(os.path.join(os.path.join('static','signatures'),signature_id_on_server))
+        except Exception:
+            print("Failed deleting signature from server hash folder. Probably it wasn't there becouse user didn't load it or some server problem")
