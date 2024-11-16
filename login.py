@@ -11,15 +11,16 @@ login_manager.login_view = 'login'
 
 
 class User(UserMixin):
-    def __init__(self, id, username, password):
+    def __init__(self, id, username, password, isAdmin):
         self.id = id
         self.username = username
         self.password = password
+        self.isAdmin = isAdmin
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    cur.execute("SELECT id, name, password FROM users WHERE id = %s", (user_id,))
+    cur.execute("SELECT id, name, password, isAdmin FROM users WHERE id = %s", (user_id,))
     user_data = cur.fetchone()
     if user_data:
         return User(*user_data)
@@ -33,7 +34,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        cur.execute("SELECT id, name, password FROM users WHERE name = %s", (username, ))
+        cur.execute("SELECT id, name, password, isAdmin FROM users WHERE name = %s", (username, ))
         user_data = cur.fetchone()
 
         if user_data:
@@ -44,12 +45,7 @@ def login():
             else:
                 return "Invalid username or password"
         else:
-            cur.execute('INSERT INTO users(name, password) VALUES (%s, %s) RETURNING id, name, password',
-                        (username, password))
-            conn.commit()
-            new_user_data = cur.fetchone()
-            new_user = User(*new_user_data)
-            login_user(new_user)
+            return 'User does not exist '
     return render_template('login.html')
 
 
@@ -66,7 +62,7 @@ def register():
             return 'Логин занят'
         elif confirm_password == password:
             cur.execute("INSERT INTO users (name, password) VALUES (%s, %s) \
-                        RETURNING id, name, password", (username, password,))
+                        RETURNING id, name, password, idAdmin", (username, password,))
             conn.commit()
             new_user_data = cur.fetchone()
             new_user = User(*new_user_data)

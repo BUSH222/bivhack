@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect
+from flask import Flask, url_for, redirect, request, current_user, render_template
 from flask_login import LoginManager, login_required, logout_user
 from login import app_login, User
 from dbloader import connect_to_db
@@ -13,9 +13,9 @@ login_manager.login_view = 'app_login.login'
 app.register_blueprint(app_login)
 
 
-@app.route('/account', methods=['GET', 'POST'])
+@app.route("/")
 @login_required
-def account():
+def main_page():
     pass
 
 
