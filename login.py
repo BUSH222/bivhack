@@ -83,5 +83,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app_login.run(host='0.0.0.0', port=5000, ssl_context=('certificate.pem', 'private_key.pem'))
-    # , ssl_context='adhoc')
+    app_login.run(host='0.0.0.0', port=5000)
