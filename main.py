@@ -28,6 +28,7 @@ def _load_user(uid):
 @app.route("/")
 # @login_required
 def main_page():
+    """Main page, here you select which contract a user will sign. Returns the main template."""
     if len(request.args) == 0:
         cur.execute('''SELECT
     ipc.name AS insurance_category_name,
@@ -53,6 +54,13 @@ JOIN
 
 @app.route('/new_contract')
 def new_contract():
+    """
+    Once a user has selected the contract they fill in the data here.
+    Args:
+        - id (int): id of the contract
+    Returns:
+        new_contract template
+    """
     cid = request.args.get('id', -1, type=int)
     assert cid != -1
     cur.execute("""SELECT f.id, f.description, f.variable_type, f.editable, f.default_value
@@ -66,6 +74,14 @@ WHERE ipf.insurance_product_id = %s;""", (cid, ))
 
 @app.route('/submit_contract')
 def submit_contract():  # TODO: signature
+    """
+    Once a user has selected the contract they fill in the data here.
+    Args:
+        - id (int): id of the contract
+        - request form (dict): field-value pairs
+    Returns:
+        string: success or error {e}
+    """
     data = request.form.to_dict()
     productid = request.args.get('id', -1, type=int)
     assert productid != -1
@@ -77,6 +93,20 @@ def submit_contract():  # TODO: signature
         return f'error: {e}'
 
 
+@app.route('/account')
+def account():
+    """Shows all the active contracts for a user"""
+
+    cur.execute('''SELECT ip.name, ip.description, c.created_at
+FROM contracts c 
+JOIN insurance_products ip ON ip.id = c.insurance_product_id
+WHERE user_id = %s;''', (current_user.id, ))
+    data = cur.fetchall()
+    print(data)
+    return 'a'
+
+
+
 # GUYS PLEASE DONT FORGET TO ADD IMG LOADER FOR SIGNATURES. IT"S OPTIONAL BUT WILL BE A GOOD FEATURE.
 # I"VE MADE ALL FUNCS NEEDED TO STORE IT BD.
 # MID WAY OF PIC SAVING IN static/signatures. IT HAS A DEFOULT OPTION IF USER WONT LOAD HIS SIGNATURE.
@@ -86,26 +116,8 @@ def product_creator():
     if request.method == 'GET':
         try:
             prod_id = request.form['prodract_id']
-            cur.execute('SELECT * FROM insurance_product WHERE id = %s', (prod_id, ))
+            cur.execute('SELECT * FROM insurance_products WHERE id = %s', (prod_id, ))
             prod = cur.fetchall()
-
-            user_id, insurance_product_id, insurance_product_data, created_at = \
-                prod[1], prod[2], prod[3], prod[4]
-
-            parsed_data = json.loads(insurance_product_data)
-
-            # Создать копию контракта с новым id
-            cur.execute("""INSERT INTO insurance_products
-                        (name, description, signable)
-                VALUES (%s, %s, %s, %s)
-                RETURNING id;
-            """, (user_id, insurance_product_id, json.dumps(insurance_product_data), created_at))
-            cur.execute("""INSERT INTO prodracts
-                        (user_id, insurance_product_id, insurance_product_data, created_at)
-                VALUES (%s, %s, %s, %s)
-                RETURNING id;
-            """, (user_id, insurance_product_id, json.dumps(insurance_product_data), created_at))
-            conn.commit()
 
         except Exception as e:
             print(f"An error occurred: {e}")
