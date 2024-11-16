@@ -4,7 +4,7 @@ import psycopg2
 conn, cur = connect_to_db()
 
 
-def create_new_field(name,desc,var_type,formula,hidden,edit):
+def create_new_field(name, desc, var_type, formula,hidden,edit):
     '''
     Creates a new field
         Args:
@@ -20,6 +20,32 @@ def create_new_field(name,desc,var_type,formula,hidden,edit):
                 (name,desc,var_type,formula, hidden,edit))
     s_id = cur.fetchone()
     return s_id
+
+
+def copy_insurance_from_template(ins_id:int, new_ins_name:str, new_ins_desc:str, signable:bool):
+    cur.execute('''SELECT * FROM insurance_product_fields WHERE insurance_product_id = %s''',(ins_id))
+    inherited_fields = cur.fetchall()
+    cur.execute('''DECLARE product_prop RECORD; 
+                SELECT * FROM insurance_products WHERE id = %s;
+                INSERT INTO insurance_products (name, password, is_admin) 
+                VALUES (product_prop.name, product_prop.description, product_prop.signable''',(ins_id))
+    product = cur.fetchall()
+
+    cur.execute('''INSERT INTO insurance_products (name,description,signable) VALUES (%s,%s,%s) RETURNING id''',(product[1],product[2],product[3]))
+    new_ins_id = cur.fetchone()
+    for row in inherited_fields:
+        cur.execute('''INSERT INTO insurance_product_fields (insurance_product_id, field_id) VALUES(%s,%s)''',new_ins_id,row[2])
+
+    try:
+        conn.commit()
+    except Exception:
+        conn.rollback()
+
+def add_fields_in_template(ins_id:int):
+    try:
+        conn.commit()
+    except Exception:
+        conn.rollback()
 
 
 def create_insurance_from_template(ins_id:int,fields:dict,new_ins_name:str,new_ins_desc:str,signable:bool):
@@ -96,3 +122,55 @@ def create_contract(user_id:int,insurance_product_id:int,fields:dict,signature_i
             os.remove(os.path.join(os.path.join('static','signatures'),signature_id_on_server))
         except Exception:
             print("Failed deleting signature from server hash folder. Probably it wasn't there becouse user didn't load it or some server problem")
+
+
+def display_insurance_products(filter = None):
+    '''
+    Returns a heap of json dicts that will be displayed in the frontend. Can be filtered for basic categories such as property, health etc.
+        Args:
+            -filter: categories filter for returning info.
+        Returns:
+            - dict of tuples. Keys are names of insurance products
+    '''
+    result_info_heap = {}
+    if filter!=None:
+        cur.execute('SELECT * FROM insurance_product_fields')
+        insurance_products_fields_ids = cur.fetchall()
+        
+        id_fid = {}
+        for key, value in insurance_products_fields_ids:
+            if key in id_fid:
+                id_fid[key].append(value) 
+            else:
+                id_fid[key] = [value]    
+        for key in id_fid.keys():
+            cur.execute('SELECT name FROM insurance_products where id = %s',(key))
+            result_info_heap[name] = []
+            name = cur.fetchone()
+            for field in id_fid[key]:
+                cur.execute('SELECT * FROM fields WHERE id=%s',(field))
+                current_contract_fields = cur.fetchall()
+                result_info_heap[name].append(current_contract_fields)
+    else:
+        cur.execute("SELECT id FROM insurance_product_categories WHERE name = %s",(filter))
+        cat_id = cur.fetchone()
+        cur.execute("SELECT insurance_product_id FROM insurance_product_categories_connections WHERE insurance_product_category_id = %s",(cat_id))
+        insurance_products_selected = cur.fetchall()
+        for insurance_product_id in insurance_products_selected:
+            cur.execute('SELECT * FROM insurance_product_fields WHERE insurance_product_id = %s',(insurance_product_id))
+            insurance_products_fields_ids = cur.fetchall()
+            id_fid = {}
+            for key, value in insurance_products_fields_ids:
+                if key in id_fid:
+                    id_fid[key].append(value) 
+                else:
+                    id_fid[key] = [value]    
+            for key in id_fid.keys():
+                cur.execute('SELECT name FROM insurance_products where id = %s',(key))
+                result_info_heap[name] = []
+                name = cur.fetchone()
+                for field in id_fid[key]:
+                    cur.execute('SELECT * FROM fields WHERE id=%s',(field))
+                    current_contract_fields = cur.fetchall()
+                    result_info_heap[name].append(current_contract_fields)    
+    return result_info_heap
