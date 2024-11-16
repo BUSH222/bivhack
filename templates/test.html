@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Переключение контента</title>
+    <style>
+        .content {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Кнопки для переключения контента -->
+    <button onclick="showContent('content1')">Контент 1</button>
+    <button onclick="showContent('content2')">Контент 2</button>
+    <button onclick="showContent('content3')">Контент 3</button>
+
+    <div id="content1" class="content">
+        <h2>Контент 1</h2>
+        <p>Это первый блок контента.</p>
+    </div>
+    <div id="content2" class="content">
+        <h2>Контент 2</h2>
+        <p>Это второй блок контента.</p>
+    </div>
+    <div id="content3" class="content">
+        <h2>Контент 3</h2>
+        <p>Это третий блок контента.</p>
+    </div>
+
+    <script>
+        function showContent(contentId) {
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const selectedContent = document.getElementById(contentId);
+            selectedContent.classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
