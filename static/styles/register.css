@@ -4,7 +4,7 @@ body {
     font-family: Arial, sans-serif;
     background: url('/static/background.png') no-repeat center center fixed;
     background-size: cover;
-    color: #ff4747;
+    color: #0c4f7e;
     overflow: hidden;
 }
 
@@ -44,7 +44,7 @@ input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 10px;
-    border: 2px solid #ff4747;
+    border: 2px solid #0c4f7e;
     border-radius: 5px;
     box-sizing: border-box;
 }
@@ -52,11 +52,11 @@ input[type="password"] {
 input[type="text"]:focus,
 input[type="password"]:focus {
     outline: none;
-    border-color: #91e8b4;
+    border-color: #0c4f7e;
 }
 
 .registration-btn {
-    background-color: #ff4747;
+    background-color: #0c4f7e;
     color: #f2f2f2;
     padding: 10px;
     border: none;
@@ -68,7 +68,7 @@ input[type="password"]:focus {
 }
 
 .registration-btn:hover {
-    background-color: #d93b3b;
+    background-color: #0c4f7e;
 }
 
 .password-container {
@@ -90,7 +90,7 @@ input[type="password"]:focus {
     border: none;
     background: none;
     cursor: pointer;
-    color: #ff4747;
+    color: #0c4f7e;
     font-size: 25px;
     padding: 0;
 }
