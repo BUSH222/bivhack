@@ -1,8 +1,16 @@
-body {
-    background: linear-gradient(to bottom, #e0f7fa, #80d8ff);
+* {
+    box-sizing: border-box;
+    background-color: transparent;
     margin: 0;
+    padding: 0;
+}
+
+body {
+    background: transparent;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
-    overflow-y: hidden;
 }
 
 .non_func_header {
@@ -60,8 +68,9 @@ body {
     width: 300px;
     height: 100vh;
     background-color: #5397f3;
-    padding-top: 1rem;
+    padding-top: 2rem;
     align-items: center;
+    width: 100%;
 }
 
 .navigation_bar a {
@@ -71,10 +80,50 @@ body {
     text-align: left;
     font-size: 1rem;
     border-radius: 15px;
+    cursor: pointer;
 }
 
 .navigation_bar a:hover {
     transition: 0.5s ease-out;
     background-color: #0c4f7e;
     border-radius: 15px;
+}
+
+.navigation_bar h1 {
+    font-size: 20px;
+    background: #e0f7fa;
+    color: black;
+    border: 2px solid whitesmoke;
+    border-radius: 10px;
+}
+
+.content {
+    background: transparent;
+    padding: 50px;
+    align-items: center;
+    width: 100%;
+
+}
+
+.search_bar {
+    padding: 10px 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+.search_bar input:hover {
+    transition: 0.5s ease-out;
+    border-radius: 25px;
+    border: 1px solid #0c4f7e;
+}
+
+.search_bar input{
+    display: flex;
+    padding: 0px 20px;
+    cursor: pointer;
+    width: 25%;
+    background: transparent;
+    border-radius: 25px;
+    border-color: #0c4f7e;
+    justify-content: flex-end;
+    display: flex;
 }

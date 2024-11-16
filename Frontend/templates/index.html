@@ -5,34 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>BIV Platform Страхование</title>
 </head>
 <body>
     <div class="non_func_header">
         <div class="img_name">
             <img src="/Frontend/static/images/BIV.png" alt="" width="60px">
-            <p href="">Platform: Страхование</p>
+            <p>Platform: Страхование</p>
+        </div>
+        <div class="open_navbar">
+            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#demo">
+                Открыть категории
+            </button>
         </div>
         <div class="log_in_out">
-            <a href="">Log in</a>
+            <i class="fas fa-profile"></i>
             <i class="fas fa-sign-out"></i>
         </div>
     </div>
-    <nav class="navigation_bar">
-        <a href="">aasdasd</a>
-        <a href="">basdas</a>
-        <a href="">cdasda</a>
-        <a href="">dsdasdas</a>
-        <a href="">edasd</a>
-    </nav>
-    <div class="container">
-        <div class="choose_insurance">
-            <div class="product_type">
-
+    <div class="search_bar">
+        <input type="text" placeholder="Найти контракт...">
+    </div>
+    <div class="content">
+        <div class="row">
+            <div class="col">
+            Column
+            </div>
+            <div class="col">
+            Column
+            </div>
+            <div class="col">
+            Column
             </div>
         </div>
     </div>
+    <div class="offcanvas offcanvas-start" id="demo">
+      <div class="offcanvas-body navigation_bar">
+        <h1>Выбрать категорию</h1>
+        <a data-bs-dismiss="offcanvas">Легковые автомобили</a>
+        <a data-bs-dismiss="offcanvas">Грузовой транспорт</a>
+        <a data-bs-dismiss="offcanvas">cat3 dasdasa</a>
+        <a data-bs-dismiss="offcanvas">cat4 dasdada</a>
+        <a data-bs-dismiss="offcanvas">cat5 dasdasd</a>
+      </div>
+    </div>
+    
 
-    <script src="/app/contact.js"></script>
+    <script src="/Frontend/static/scripts/index.js"></script>
 </body>
 </html>
