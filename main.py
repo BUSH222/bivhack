@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from flask_login import LoginManager, login_required, current_user
 from login import app_login, load_user
 from dbloader import connect_to_db
@@ -49,7 +49,7 @@ JOIN
         for catname, productid, productname, productdesc in data:
             grouped_results[catname].append([productid, productname, productdesc])
         print(dict(grouped_results))
-        return 'a'  # render_template('main.html', data=data)
+        return render_template('main.html', data=data)
 
 
 @app.route('/new_contract')
@@ -69,7 +69,7 @@ JOIN fields f ON ipf.field_id = f.id
 WHERE ipf.insurance_product_id = %s;""", (cid, ))
     data = cur.fetchall()
     print(data)
-    return 'a'
+    return render_template('new_contract.html', data=data)
 
 
 @app.route('/submit_contract')
@@ -88,7 +88,7 @@ def submit_contract():  # TODO: signature
     userid = current_user.id
     try:
         create_contract(user_id=userid, insurance_product_id=productid, fields=data)
-        return 'success'
+        return redirect('account')
     except Exception as e:
         return f'error: {e}'
 
@@ -103,7 +103,7 @@ JOIN insurance_products ip ON ip.id = c.insurance_product_id
 WHERE user_id = %s;''', (current_user.id, ))
     data = cur.fetchall()
     print(data)
-    return 'a'
+    return render_template('account.html')
 
 
 
