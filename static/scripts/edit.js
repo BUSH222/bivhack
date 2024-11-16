@@ -44,3 +44,48 @@ prevBtn.addEventListener('click', () => {
 
 
 updateProgress();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////FUNCTIONS TO CREATE FIELDS///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const mainContainer = document.getElementById('main-container');
+const addHeaderButton = document.getElementById('add-header-btn');
+
+
+function createHeader() {
+
+  const headerSection = document.createElement('div');
+  headerSection.className = 'header-section';
+
+
+  const header = document.createElement('h2');
+  header.className = 'header';
+  header.textContent = `Новый заголовок`;
+
+  const LiList = document.createElement("ul");
+ 
+  LiList.className = "ListOfFields";
+
+  const addFieldButton = document.createElement('button');
+  addFieldButton.textContent = '+ Добавить поле';
+  addFieldButton.onclick = () => addTextField(LiList);
+
+  LiList.appendChild(addFieldButton);
+  headerSection.appendChild(addFieldButton)
+  headerSection.appendChild(LiList);
+
+
+  mainContainer.appendChild(headerSection);
+}
+
+function addTextField(section) {
+  const textField = document.createElement('input');
+  textField.type = 'text';
+  textField.placeholder = 'Введите текст';
+  section.appendChild(textField);
+}
+
+
+addHeaderButton.onclick = createHeader;

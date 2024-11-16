@@ -11,10 +11,15 @@
 <body>
     <div class="non_func_header">
         <div class="img_name">
-            <img src="/static/images/BIV.png" alt="" width="60px">
+            <a href="/">
+                <img src="/static/images/BIV.png" alt="" width="60px">
+            </a>
             <p>Platform: Страхование</p>
         </div>
         <div class="log_in_out">
+            <a href="/account">
+                <img src="/static/images/account_grey.png" alt="Account" width="40px" style="border-radius: 50%;">
+            </a>
             <i class="fas fa-profile"></i>
             <i class="fas fa-sign-out"></i>
         </div>
@@ -30,7 +35,7 @@
             {% for field in fields %}
             <div class="mb-3">
                 <label for="field_{{ field[0] }}" class="form-label">{{ field[1] }}</label>
-                {% if field[2] == "text" %}
+                {% if field[2] == 0 %}
                     <input 
                         type="text" 
                         id="field_{{ field[0] }}" 
@@ -38,7 +43,7 @@
                         class="form-control"
                         {% if not field[3] %} readonly {% endif %}
                         value="{{ field[4] }}">
-                {% elif field[2] == "number" %}
+                {% elif field[2] == 1 %}
                     <input 
                         type="number" 
                         id="field_{{ field[0] }}" 
@@ -49,7 +54,7 @@
                 {% endif %}
             </div>
             {% endfor %}
-            <button type="button" class="btn btn-primary">Создать договор</button>
+            <button type="submit" class="btn btn-primary">Создать договор</button>
         </form>
         {% else %}
             <p class="text-muted">Выберите продукт, чтобы заполнить поля.</p>
@@ -63,5 +68,40 @@
             <p><a href="#">Политика конфиденциальности</a> | <a href="#">Условия использования</a></p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+    
+            form.addEventListener("submit", async function (event) {
+                // Prevent the default form submission behavior
+                event.preventDefault();
+    
+                // Create a FormData object to gather form inputs
+                const formData = new FormData(form);
+    
+                try {
+                    // Make the POST request to the form's action URL
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        body: formData
+                    });
+    
+                    // Parse the JSON response
+                    const result = await response.json();
+    
+                    // Display the result in an alert
+                    alert(JSON.stringify(result, null, 2));
+    
+                    // Redirect to /account after the user clicks OK
+                    window.location.href = "/account";
+                } catch (error) {
+                    // Handle errors and alert the user
+                    alert("An error occurred while submitting the form: " + error.message);
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>

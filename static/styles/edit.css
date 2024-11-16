@@ -90,3 +90,32 @@ button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.header-section {
+    position: relative;
+    margin-top: 20px;
+}
+
+.header-section button {
+    margin-bottom: 10px;
+}
+
+input[type="text"] {
+    display: block;
+    margin-top: 10px;
+}
+
+.ListOfFields {
+    display: flex; 
+    list-style: none; 
+    padding: 10px;
+    margin: 0;
+}
+
+.ListOfFields li {
+    margin-right: 20px;
+}
+
+.ListOfFields li:hover {
+    color: #007bff;
+}

@@ -1,10 +1,9 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, jsonify
 from flask_login import LoginManager, login_required, current_user
 from login import app_login, load_user
 from dbloader import connect_to_db
-import json
 from collections import defaultdict
-from db_funcs import create_contract
+from db_funcs import create_contract, get_insurance_product_info, create_insurance_from_template
 
 app = Flask(__name__)
 
@@ -25,31 +24,33 @@ def _load_user(uid):
     return load_user(uid)
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 # @login_required
 def main_page():
     """Main page, here you select which contract a user will sign. Returns the main template."""
-    if len(request.args) == 0:
-        cur.execute('''SELECT
-    ipc.name AS insurance_category_name,
-    ip.id AS insurance_product_id,
-    ip.name AS insurance_product_name,
-    ip.description AS insurance_product_description
+    cur.execute('''SELECT
+ipc.name AS insurance_category_name,
+ip.id AS insurance_product_id,
+ip.name AS insurance_product_name,
+ip.description AS insurance_product_description
 FROM
-    insurance_product_categories ipc
+insurance_product_categories ipc
 JOIN
-    insurance_product_categories_connections ipcc
-    ON ipc.id = ipcc.insurance_product_category_id
+insurance_product_categories_connections ipcc
+ON ipc.id = ipcc.insurance_product_category_id
 JOIN
-    insurance_products ip
-    ON ipcc.insurance_product_id = ip.id;''')
-        data = cur.fetchall()
-        grouped_results = defaultdict(list)
+insurance_products ip
+ON ipcc.insurance_product_id = ip.id;''')
+    data = cur.fetchall()
+    grouped_results = defaultdict(list)
 
-        for catname, productid, productname, productdesc in data:
-            grouped_results[catname].append([productid, productname, productdesc])
-        print(dict(grouped_results))
-        return render_template('main.html', data=data)
+    for catname, productid, productname, productdesc in data:
+        grouped_results[catname].append([productid, productname, productdesc])
+    insurance_types = dict(grouped_results)
+    if request.method == 'GET':
+        return render_template('main.html', insurance_types=insurance_types)
+    else:
+        return jsonify(insurance_types)
 
 
 @app.route('/new_contract')
@@ -69,10 +70,10 @@ JOIN fields f ON ipf.field_id = f.id
 WHERE ipf.insurance_product_id = %s;""", (cid, ))
     data = cur.fetchall()
     print(data)
-    return render_template('new_contract.html', data=data)
+    return render_template('new_contract.html', fields=data, contract_id=cid)
 
 
-@app.route('/submit_contract')
+@app.route('/submit_contract', methods=['POST'])
 def submit_contract():  # TODO: signature
     """
     Once a user has selected the contract they fill in the data here.
@@ -82,11 +83,14 @@ def submit_contract():  # TODO: signature
     Returns:
         string: success or error {e}
     """
+    print('submitted')
     data = request.form.to_dict()
     productid = request.args.get('id', -1, type=int)
     assert productid != -1
     userid = current_user.id
     try:
+        print(userid, productid)
+        print(data)
         create_contract(user_id=userid, insurance_product_id=productid, fields=data)
         return redirect('account')
     except Exception as e:
@@ -94,17 +98,17 @@ def submit_contract():  # TODO: signature
 
 
 @app.route('/account')
+@login_required
 def account():
     """Shows all the active contracts for a user"""
 
     cur.execute('''SELECT ip.name, ip.description, c.created_at
-FROM contracts c 
+FROM contracts c
 JOIN insurance_products ip ON ip.id = c.insurance_product_id
 WHERE user_id = %s;''', (current_user.id, ))
     data = cur.fetchall()
     print(data)
     return render_template('account.html')
-
 
 
 # GUYS PLEASE DONT FORGET TO ADD IMG LOADER FOR SIGNATURES. IT"S OPTIONAL BUT WILL BE A GOOD FEATURE.
@@ -113,44 +117,29 @@ WHERE user_id = %s;''', (current_user.id, ))
 @app.route("/product_creator")
 @login_required
 def product_creator():
+    """
+    GET:
+    dict usr_input - new_fields, name, description, btn_type
+    """
+    prod_id = int(request.form['prodract_id'])
+    usr_input = request.form.to_dict()
     if request.method == 'GET':
-        try:
-            prod_id = request.form['prodract_id']
-            cur.execute('SELECT * FROM insurance_products WHERE id = %s', (prod_id, ))
-            prod = cur.fetchall()
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            conn.rollback()
-        finally:
-            cur.close()
-        return render_template("editor.html")
-
+        fields = get_insurance_product_info(prod_id)
+        return render_template("product_creator.html", fields)
     if request.method == 'POST':
-        try:
-            prod_id = request.form['prodract_id']
-            cur.execute('SELECT * FROM prodracts WHERE id = %s', (prod_id, ))
-            prod = cur.fetchall()
+        if usr_input["btn_type"] == "submit":
+            new_fields = usr_input["new_fields"].split('/')
+            create_insurance_from_template(prod_id, new_fields,
+                                        usr_input["name"], usr_input["description"], True)
 
-            user_id, insurance_product_id, insurance_product_data, created_at = \
-                prod[1], prod[2], prod[3], prod[4]
 
-            parsed_data = json.loads(insurance_product_data)
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
-            # Создать копию контракта с новым id
-            cur.execute("""
-                INSERT INTO prodracts (user_id, insurance_product_id, insurance_product_data, created_at)
-                VALUES (%s, %s, %s, %s)
-                RETURNING id;
-            """, (user_id, insurance_product_id, json.dumps(insurance_product_data), created_at))
-            conn.commit()
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            conn.rollback()
-        finally:
-            cur.close()
-        return render_template("editor.html")
+@app.route('/editor')
+def edit():
+    return render_template("edit.html")
 
 
 if __name__ == '__main__':

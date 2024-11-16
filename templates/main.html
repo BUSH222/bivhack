@@ -11,14 +11,20 @@
 <body>
     <div class="non_func_header">
         <div class="img_name">
-            <img src="/static/images/BIV.png" alt="" width="60px">
+            <a href="/">
+                <img src="/static/images/BIV.png" alt="" width="60px">
+            </a>
             <p>Platform: Страхование</p>
         </div>
         <div class="log_in_out">
+            <a href="/account">
+                <img src="/static/images/account_grey.png" alt="Account" width="40px" style="border-radius: 50%;">
+            </a>
             <i class="fas fa-profile"></i>
             <i class="fas fa-sign-out"></i>
         </div>
     </div>
+    
 
     <div class="main-container">
         <div class="card">
@@ -56,16 +62,21 @@
     </footer>
 
     <script>
-        // Map of insurance types to products (can be fetched dynamically from Flask in a real app)
-        const productOptions = {
-            "Краткосрочное": ["Продукт A", "Продукт B", "Продукт C"],
-            "Долгосрочное": ["Продукт D", "Продукт E"],
-            "Полное": ["Продукт F", "Продукт G", "Продукт H"],
-            "Минимальное": ["Продукт I", "Продукт J"]
-        };
-
         // Function to update the "Страховой продукт" dropdown
-        function updateProductDropdown() {
+        async function updateProductDropdown() {
+            // Perform a POST request to the current page URL
+            const response = await fetch(window.location.href, { 
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            // Parse the JSON response
+            const productOptions = await response.json();
+
+            // Log the product options for debugging
+            console.log(productOptions);
             const insuranceType = document.getElementById("insuranceTypeSelect").value;
             const productSelect = document.getElementById("productSelect");
             const productContainer = document.getElementById("productContainer");
@@ -77,8 +88,9 @@
             if (productOptions[insuranceType]) {
                 productOptions[insuranceType].forEach(product => {
                     const option = document.createElement("option");
-                    option.value = product;
-                    option.textContent = product;
+                    option.value = product[1];
+                    option.textContent = product[1];
+                    option.id = product[0]
                     productSelect.appendChild(option);
                 });
 
@@ -91,21 +103,22 @@
         }
 
         function redirectToNewContract() {
-        // Get selected insurance type and product
-        const insuranceType = document.getElementById("insuranceTypeSelect").value;
-        const productSelect = document.getElementById("productSelect").value;
+            // Get selected insurance type and product
+            const insuranceType = document.getElementById("insuranceTypeSelect").value;
+            const productSelect = document.getElementById("productSelect").value;
+            const newid = document.getElementById('productSelect');
 
-        // Ensure both fields are selected before proceeding
-        if (!insuranceType || !productSelect) {
-            alert("Пожалуйста, выберите тип страхования и продукт.");
-            return;
-        }
+            // Ensure both fields are selected before proceeding
+            if (!insuranceType || !productSelect) {
+                alert("Пожалуйста, выберите тип страхования и продукт.");
+                return;
+            }
 
-        // Construct the URL with query parameters
-        const url = `/new_contract?insurance_type=${encodeURIComponent(insuranceType)}&product=${encodeURIComponent(productSelect)}`;
+            // Construct the URL with query parameters
+            const url = `/new_contract?id=${encodeURIComponent(newid.options[newid.selectedIndex].id)}`;
 
-        // Redirect to the new page
-        window.location.href = url;
+            // Redirect to the new page
+            window.location.href = url;
         }
     </script>
 </body>
